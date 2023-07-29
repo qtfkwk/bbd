@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
 #[command(
+    version,
     about = "\
 Binary Braille Dump
 
@@ -20,7 +21,7 @@ Encode/decode data to/from Braille Patterns Unicode Block characters
 Notes:
 
 1. Styles:
-    * `bcd`: Binary Coded Decimal of byte vales 0-99
+    * `bcd`: Binary Coded Decimal of byte values 0-99
     * `direct`: Direct encoding using the standard Braille dot values
     * `nlbb`: Most significant nibble (MSN) left column, most significant bit
       (MSB) bottom row. This is the default style.

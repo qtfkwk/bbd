@@ -22,13 +22,14 @@ Options:
   -c <N>          Wrap to N columns ("bytes") per line; 0: disable wrapping [default: 64]
   -m              Markdown output
   -h, --help      Print help
+  -V, --version   Print version
 
 ---
 
 Notes:
 
 1. Styles:
-    * `bcd`: Binary Coded Decimal of byte vales 0-99
+    * `bcd`: Binary Coded Decimal of byte values 0-99
     * `direct`: Direct encoding using the standard Braille dot values
     * `nlbb`: Most significant nibble (MSN) left column, most significant bit
       (MSB) bottom row. This is the default style.
