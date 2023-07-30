@@ -1,4 +1,4 @@
-Library for encoding and decoding data to binary representations using the
+Library for encoding and decoding data to/from binary representations using the
 [Braille Patterns Unicode Block characters](https://en.wikipedia.org/wiki/Braille_Patterns)
 
 See the [documentation](https://docs.rs/bbd-lib) or the
@@ -7,4 +7,11 @@ function for doctest examples.
 
 See also the [bbd](https://crates.io/crates/bbd) crate which provides a CLI
 utility.
+
+```
+use bbd_lib::*;
+
+assert_eq!(encode(b"Hello\n", encode_nlbb, 0, 0), "⢄⠮⢦⢦⢾⢐");
+assert_eq!(decode("⢄⠮⢦⢦⢾⢐", decode_nlbb), b"Hello\n");
+```
 

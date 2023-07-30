@@ -446,7 +446,7 @@ use bbd_lib::*;
 
 let bcd_content = (0..=99).collect::<Vec<u8>>();
 let bytes_content = (0..=255).collect::<Vec<u8>>();
-let cases: Vec<(&[u8], fn(u8) -> char, &str)> = vec![
+let cases: Vec<(&[u8], EncodeFn, &str)> = vec![
     (
         &bcd_content,
         encode_bcd,
@@ -513,7 +513,7 @@ for (content, convert_byte, result) in cases {
 */
 pub fn encode(
     content: &[u8],
-    convert_byte: fn(u8) -> char,
+    convert_byte: EncodeFn,
     columns: usize,
     prev_content_length: usize,
 ) -> String {
@@ -548,7 +548,7 @@ use bbd_lib::*;
 
 let bcd_content = (0..=99).collect::<Vec<u8>>();
 let bytes_content = (0..=255).collect::<Vec<u8>>();
-let cases: Vec<(&str, fn(char) -> u8, &[u8])> = vec![
+let cases: Vec<(&str, DecodeFn, &[u8])> = vec![
     (
         "\
             ⠀⢀⠠⢠⠐⢐⠰⢰⠈⢈⡀⣀⡠⣠⡐⣐⡰⣰⡈⣈⠄⢄⠤⢤⠔⢔⠴⢴⠌⢌⡄⣄⡤⣤⡔⣔⡴⣴⡌⣌⠂⢂⠢⢢⠒⢒⠲⢲⠊⢊\
@@ -613,7 +613,7 @@ for (content, convert_byte, result) in cases {
 }
 ```
 */
-pub fn decode(content: &str, convert_char: fn(char) -> u8) -> Vec<u8> {
+pub fn decode(content: &str, convert_char: DecodeFn) -> Vec<u8> {
     let mut r = Vec::with_capacity(content.len() / 4);
     for c in content.chars() {
         if !['\\', '\n'].contains(&c) {

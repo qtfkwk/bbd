@@ -1,4 +1,5 @@
-CLI utility for encoding and decoding data to binary representations using the
+CLI utility for encoding and decoding data to/from binary representations using
+the
 [Braille Patterns Unicode Block characters](https://en.wikipedia.org/wiki/Braille_Patterns)
 
 See also the [bbd-lib](https://crates.io/crates/bbd-lib) library crate.
