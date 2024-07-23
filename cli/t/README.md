@@ -1,5 +1,4 @@
-CLI utility for encoding and decoding data to/from binary representations using
-the
+CLI utility for encoding and decoding data to/from binary representations using the
 [Braille Patterns Unicode Block characters](https://en.wikipedia.org/wiki/Braille_Patterns)
 
 See also the [bbd-lib](https://crates.io/crates/bbd-lib) library crate.
@@ -9,6 +8,11 @@ See also the [bbd-lib](https://crates.io/crates/bbd-lib) library crate.
 ```text
 $ bbd -h
 !run:../../target/release/bbd -h
+```
+
+```text
+$ bbd -V
+!run:../../target/release/bbd -V
 ```
 
 # Examples
