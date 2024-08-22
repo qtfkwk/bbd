@@ -6,4 +6,5 @@
     * 0.2.1 (2024-07-23): Update dependencies; fix changelog; fix cli readme; fix clippy; add
       `Makefile.md`
     * 0.2.2 (2024-08-15): Update cli dependencies; fix changelog
+    * 0.2.3 (2024-08-22): Update dependencies; fix cli bbd-lib version
 
