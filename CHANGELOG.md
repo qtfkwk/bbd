@@ -7,4 +7,5 @@
       `Makefile.md`
     * 0.2.2 (2024-08-15): Update cli dependencies; fix changelog
     * 0.2.3 (2024-08-22): Update dependencies; fix cli bbd-lib version
+    * 0.2.4 (2024-08-22): Add `commit` target to makefile; fix readme
 

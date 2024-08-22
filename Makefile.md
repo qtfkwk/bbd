@@ -146,6 +146,15 @@ cocomo -o sloccount
 cocomo
 ```
 
+# commit
+
+```bash
+set -xeo pipefail
+V=$(toml get -r lib/Cargo.toml package.version)
+git commit -m "$V"
+git tag -a "$V" -m "$V"
+```
+
 # publish
 
 ```
