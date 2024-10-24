@@ -17,9 +17,12 @@ Arguments:
   [PATH]...  Input file(s); [default: "-" (stdin)]
 
 Options:
-  -d              Decode Braille characters to bytes using the given style; ignores wrapping
-  -s <STYLE>      Style (1) [default: nlbb] [possible values: bcd, direct, nlbb, nlbt, nrbb, nrbt]
-  -c <N>          Wrap to N columns ("bytes") per line; 0: disable wrapping [default: 64]
+  -d              Decode Braille characters to bytes using the given style;
+                  ignores wrapping
+  -s <STYLE>      Style (1) [default: nlbb] [possible values: bcd, direct, nlbb,
+                  nlbt, nrbb, nrbt]
+  -c <N>          Wrap to N columns ("bytes") per line; 0: disable wrapping
+                  [default: 64]
   -m              Markdown output
   -h, --help      Print help
   -V, --version   Print version
@@ -40,7 +43,7 @@ Notes:
 
 ```text
 $ bbd -V
-bbd 0.2.4
+bbd 0.3.0
 ```
 
 # Examples
