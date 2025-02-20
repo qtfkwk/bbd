@@ -1,12 +1,12 @@
 [package]
 name = "bbd"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 description = "Binary Braille Dump"
 license = "MIT"
 repository = "https://github.com/qtfkwk/bbd"
 
 [dependencies]
-bbd-lib = { version = "0.3.1", path = "../lib" }
-clap = { version = "4.5.22", features = ["derive", "wrap_help"] }
-clap-cargo = "0.14.1"
+bbd-lib = { version = "0.3.2", path = "../lib" }
+clap = { version = "4.5.30", features = ["derive", "wrap_help"] }
+clap-cargo = "0.15.2"
