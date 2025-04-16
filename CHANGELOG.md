@@ -11,4 +11,5 @@
 * 0.3.0 (2024-10-24): Add clap color to cli; update dependencies
     * 0.3.1 (2024-12-04): Update dependencies
     * 0.3.2 (2025-02-20): Update dependencies
+    * 0.3.3 (2025-02-20): Update dependencies
 
