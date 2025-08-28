@@ -1,7 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 use bbd_lib::*;
-use clap::{builder::Styles, Parser};
+use clap::{Parser, builder::Styles};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};

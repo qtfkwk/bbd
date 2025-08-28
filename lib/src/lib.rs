@@ -173,11 +173,7 @@ fn encode_nb(b: u8, values: &[(u8, u32)]) -> char {
     char::from_u32(values.iter().fold(
         0x2800,
         |s, (from, to)| {
-            if b & *from == *from {
-                s + *to
-            } else {
-                s
-            }
+            if b & *from == *from { s + *to } else { s }
         },
     ))
     .unwrap()
@@ -191,11 +187,7 @@ fn decode_nb(c: char, values: &[(u8, u8)]) -> u8 {
     values.iter().fold(
         0,
         |s, (from, to)| {
-            if b & *from == *from {
-                s + *to
-            } else {
-                s
-            }
+            if b & *from == *from { s + *to } else { s }
         },
     )
 }
