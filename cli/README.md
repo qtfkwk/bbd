@@ -43,7 +43,7 @@ Notes:
 
 ```text
 $ bbd -V
-bbd 0.4.0
+bbd 0.4.1
 ```
 
 # Examples
