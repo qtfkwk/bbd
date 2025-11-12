@@ -1,19 +1,17 @@
 #![doc = include_str!("../README.md")]
 
-use bbd_lib::*;
-use clap::{Parser, builder::Styles};
-use std::fs::File;
-use std::io::{Read, Write};
-use std::path::{Path, PathBuf};
-
-const STYLES: Styles = Styles::styled()
-    .header(clap_cargo::style::HEADER)
-    .usage(clap_cargo::style::USAGE)
-    .literal(clap_cargo::style::LITERAL)
-    .placeholder(clap_cargo::style::PLACEHOLDER)
-    .error(clap_cargo::style::ERROR)
-    .valid(clap_cargo::style::VALID)
-    .invalid(clap_cargo::style::INVALID);
+use {
+    anyhow::Result,
+    bbd_lib::{
+        DecodeFn, EncodeFn, decode, decode_bcd, decode_direct, decode_nlbb, decode_nlbt,
+        decode_nrbb, decode_nrbt, encode, encode_bcd, encode_direct, encode_nlbb, encode_nlbt,
+        encode_nrbb, encode_nrbt,
+    },
+    clap::Parser,
+    clap_cargo::style::CLAP_STYLING,
+    std::io::{Read, Write},
+    std::path::PathBuf,
+};
 
 #[derive(Parser)]
 #[command(
@@ -40,7 +38,7 @@ Notes:
 \
     ",
     max_term_width = 80,
-    styles = STYLES,
+    styles = CLAP_STYLING,
 )]
 struct Cli {
     /// Decode Braille characters to bytes using the given style; ignores
@@ -70,15 +68,7 @@ struct Cli {
     files: Vec<PathBuf>,
 }
 
-fn read_file(file: &Path) -> Vec<u8> {
-    let mut f = File::open(file).expect("no file found");
-    let metadata = std::fs::metadata(file).expect("unable to read metadata");
-    let mut buffer = vec![0; metadata.len() as usize];
-    f.read_exact(&mut buffer).expect("buffer overflow");
-    buffer
-}
-
-fn main() {
+fn main() -> Result<()> {
     let cli = Cli::parse();
 
     let style = cli.style.as_str();
@@ -127,7 +117,7 @@ fn main() {
                 std::io::stdin().read_to_end(&mut r).unwrap();
                 r
             } else {
-                read_file(i)
+                std::fs::read(i)?
             };
             let binary = encode(&content, encode_byte, cli.columns, prev_content_length);
             if cli.markdown {
@@ -138,4 +128,6 @@ fn main() {
             prev_content_length = content.len();
         }
     }
+
+    Ok(())
 }

@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
 
 // Braille dot values given in LSB to MSB order for each "style"
 const NLBB: &[u32; 8] = &[8, 16, 32, 128, 1, 2, 4, 64];
@@ -12,19 +12,17 @@ const NRBT: &[u32; 8] = &[64, 4, 2, 1, 128, 32, 16, 8];
 const TENS: &[u8] = &[0x00, 0x40, 0x04, 0x44, 0x02, 0x42, 0x06, 0x46, 0x01, 0x41];
 const ONES: &[u8] = &[0x00, 0x80, 0x20, 0xA0, 0x10, 0x90, 0x30, 0xB0, 0x08, 0x88];
 
-lazy_static! {
-    // Encode
-    static ref ENCODE_NLBB: Vec<(u8, u32)> = style_encode(*NLBB);
-    static ref ENCODE_NLBT: Vec<(u8, u32)> = style_encode(*NLBT);
-    static ref ENCODE_NRBB: Vec<(u8, u32)> = style_encode(*NRBB);
-    static ref ENCODE_NRBT: Vec<(u8, u32)> = style_encode(*NRBT);
+// Encode
+static ENCODE_NLBB: LazyLock<Vec<(u8, u32)>> = LazyLock::new(|| style_encode(*NLBB));
+static ENCODE_NLBT: LazyLock<Vec<(u8, u32)>> = LazyLock::new(|| style_encode(*NLBT));
+static ENCODE_NRBB: LazyLock<Vec<(u8, u32)>> = LazyLock::new(|| style_encode(*NRBB));
+static ENCODE_NRBT: LazyLock<Vec<(u8, u32)>> = LazyLock::new(|| style_encode(*NRBT));
 
-    // Decode
-    static ref DECODE_NLBB: Vec<(u8, u8)> = style_decode(*NLBB);
-    static ref DECODE_NLBT: Vec<(u8, u8)> = style_decode(*NLBT);
-    static ref DECODE_NRBB: Vec<(u8, u8)> = style_decode(*NRBB);
-    static ref DECODE_NRBT: Vec<(u8, u8)> = style_decode(*NRBT);
-}
+// Decode
+static DECODE_NLBB: LazyLock<Vec<(u8, u8)>> = LazyLock::new(|| style_decode(*NLBB));
+static DECODE_NLBT: LazyLock<Vec<(u8, u8)>> = LazyLock::new(|| style_decode(*NLBT));
+static DECODE_NRBB: LazyLock<Vec<(u8, u8)>> = LazyLock::new(|| style_decode(*NRBB));
+static DECODE_NRBT: LazyLock<Vec<(u8, u8)>> = LazyLock::new(|| style_decode(*NRBT));
 
 pub type EncodeFn = fn(u8) -> char;
 pub type DecodeFn = fn(char) -> u8;
@@ -58,15 +56,22 @@ assert!(
         .all(|x| std::panic::catch_unwind(|| encode_bcd(x)).is_err()),
 );
 ```
+
+# Panics
+
+Panics if the given `u8` is not in the range 0-99 or is not able to convert the calculated `u32`
+value into a `char`
 */
+#[must_use]
 pub fn encode_bcd(decimal: u8) -> char {
-    if decimal > 99 {
-        panic!("Invalid BCD value: {decimal}! Must be in range `0..=99`.")
-    }
+    assert!(
+        decimal < 100,
+        "Invalid BCD value: {decimal}! Must be in range `0..=99`.",
+    );
     let d = decimal as usize;
     let tens = d / 10;
     let ones = d - tens * 10;
-    char::from_u32(0x2800 + (TENS[tens] as u32) + (ONES[ones] as u32)).unwrap()
+    char::from_u32(0x2800 + u32::from(TENS[tens]) + u32::from(ONES[ones])).unwrap()
 }
 
 /**
@@ -92,23 +97,30 @@ assert_eq!(
     (0..=99).collect::<Vec<u8>>(),
 );
 ```
+
+# Panics
+
+Panics if not able to convert the given BCD `char` to its associated `u8` "value"
 */
+#[must_use]
 pub fn decode_bcd(c: char) -> u8 {
-    let b = ((c as u32) - 0x2800) as u8;
-    let mut decimal: usize = 0;
+    let b = decode_direct(c);
+    let mut decimal: u8 = 0;
     for (i, tens) in TENS.iter().enumerate().rev() {
         if b & *tens == *tens {
+            let i = u8::try_from(i).unwrap();
             decimal += i * 10;
             break;
         }
     }
     for (i, ones) in ONES.iter().enumerate().rev() {
         if b & *ones == *ones {
+            let i = u8::try_from(i).unwrap();
             decimal += i;
             break;
         }
     }
-    decimal as u8
+    decimal
 }
 
 /**
@@ -135,8 +147,10 @@ assert_eq!(
 );
 ```
 */
+#[allow(clippy::missing_panics_doc)]
+#[must_use]
 pub fn encode_direct(b: u8) -> char {
-    char::from_u32(0x2800 + (b as u32)).unwrap()
+    char::from_u32(u32::from(b) + 0x2800).unwrap()
 }
 
 /**
@@ -161,9 +175,20 @@ assert_eq!(
     ".chars().map(|x| decode_direct(x)).collect::<Vec<u8>>(),
     (0..=255).collect::<Vec<u8>>(),
 );
+```
+
+# Panics
+
+Panics if given `char` is not in the range 0x2800-0x28FF
 */
+#[must_use]
 pub fn decode_direct(c: char) -> u8 {
-    ((c as u32) - 0x2800) as u8
+    let v = u32::from(c);
+    assert!(
+        (0x2800..=0x28FF).contains(&v),
+        "char is not in range 0x2800-0x28FF",
+    );
+    u8::try_from(v - 0x2800).unwrap()
 }
 
 /**
@@ -183,7 +208,7 @@ fn encode_nb(b: u8, values: &[(u8, u32)]) -> char {
 Core of `decode_{nlbb,nlbt,nrbb,nrbt}` functions
 */
 fn decode_nb(c: char, values: &[(u8, u8)]) -> u8 {
-    let b = ((c as u32) - 0x2800) as u8;
+    let b = decode_direct(c);
     values.iter().fold(
         0,
         |s, (from, to)| {
@@ -218,6 +243,7 @@ assert_eq!(
 );
 ```
 */
+#[must_use]
 pub fn encode_nlbb(b: u8) -> char {
     encode_nb(b, &ENCODE_NLBB)
 }
@@ -247,6 +273,7 @@ assert_eq!(
     (0..=255).collect::<Vec<u8>>());
 ```
 */
+#[must_use]
 pub fn decode_nlbb(c: char) -> u8 {
     decode_nb(c, &DECODE_NLBB)
 }
@@ -277,6 +304,7 @@ assert_eq!(
 );
 ```
 */
+#[must_use]
 pub fn encode_nlbt(b: u8) -> char {
     encode_nb(b, &ENCODE_NLBT)
 }
@@ -306,6 +334,7 @@ assert_eq!(
     (0..=255).collect::<Vec<u8>>());
 ```
 */
+#[must_use]
 pub fn decode_nlbt(c: char) -> u8 {
     decode_nb(c, &DECODE_NLBT)
 }
@@ -336,6 +365,7 @@ assert_eq!(
 );
 ```
 */
+#[must_use]
 pub fn encode_nrbb(b: u8) -> char {
     encode_nb(b, &ENCODE_NRBB)
 }
@@ -366,6 +396,7 @@ assert_eq!(
 );
 ```
 */
+#[must_use]
 pub fn decode_nrbb(c: char) -> u8 {
     decode_nb(c, &DECODE_NRBB)
 }
@@ -396,6 +427,7 @@ assert_eq!(
 );
 ```
 */
+#[must_use]
 pub fn encode_nrbt(b: u8) -> char {
     encode_nb(b, &ENCODE_NRBT)
 }
@@ -426,6 +458,7 @@ assert_eq!(
 );
 ```
 */
+#[must_use]
 pub fn decode_nrbt(c: char) -> u8 {
     decode_nb(c, &DECODE_NRBT)
 }
@@ -621,7 +654,7 @@ Process a style definition into a list of from/to conversion values for encoding
 fn style_encode(values: [u32; 8]) -> Vec<(u8, u32)> {
     values
         .iter()
-        .cloned()
+        .copied()
         .enumerate()
         .map(|(i, v)| (1 << i, v))
         .collect()
@@ -633,8 +666,8 @@ Process a style definition into a list of from/to conversion values for decoding
 fn style_decode(values: [u32; 8]) -> Vec<(u8, u8)> {
     values
         .iter()
-        .cloned()
+        .copied()
         .enumerate()
-        .map(|(i, v)| (v as u8, 1 << i))
+        .map(|(i, v)| (u8::try_from(v).unwrap(), 1 << i))
         .collect()
 }
